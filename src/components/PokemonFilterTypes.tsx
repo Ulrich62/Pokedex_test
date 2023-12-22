@@ -1,14 +1,16 @@
 import { Box, Stack, Button } from "@mui/material"
-import { PokemonType, PokemonTypeData } from "./Contexts/PokemonProvider"
+import { PokemonType } from "./Contexts/PokemonProvider"
 import React from "react"
 import PokemonTypeIcon from "./PokemonTypeIcon"
+import { INamedApiResource, IType } from "pokeapi-typescript"
 
 interface PokemonFilterTypesProps {
-  allTypes: PokemonTypeData[]
+  allTypes: INamedApiResource<IType>[]
   selectedTypes: PokemonType[]
   addFilterType: (type: PokemonType) => void
   removeFilterType: (type: PokemonType) => void
 }
+
 
 const PokemonFilterTypes: React.FC<PokemonFilterTypesProps> = ({
   allTypes,
@@ -17,11 +19,15 @@ const PokemonFilterTypes: React.FC<PokemonFilterTypesProps> = ({
   removeFilterType
 }) => {
 
+  const isMaxSelected = selectedTypes.length >= 2;
+
   function handleToggleType(type: PokemonType) {
     if (selectedTypes.includes(type)) {
       removeFilterType(type)
     } else {
-      addFilterType(type)
+        if (!isMaxSelected) {
+        addFilterType(type);
+      }
     }
   }
 
@@ -30,13 +36,14 @@ const PokemonFilterTypes: React.FC<PokemonFilterTypesProps> = ({
   return (
     <Box
       sx={{
-        display: "flex",
         pt: 4,
         pb: 2
       }}
     >
       <Stack
-        spacing={1}
+        direction={{ xs: "column", sm: "row" }}
+        flexWrap={"wrap"}
+        gap={2}
       >
         {types.map((type) => (
           <Button
@@ -44,6 +51,7 @@ const PokemonFilterTypes: React.FC<PokemonFilterTypesProps> = ({
             startIcon={<PokemonTypeIcon type={type} />}
             color={selectedTypes.includes(type) ? "primary": "secondary"}
             onClick={() => handleToggleType(type)}
+            disabled={isMaxSelected && !selectedTypes.includes(type)}
           >
             {type}
           </Button>
